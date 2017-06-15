@@ -25,7 +25,7 @@ controller.on('slash_command', function(bot, message) {
   case '/omikuji':
     var choices = message.text.split(',');
     var choice = choices[Math.random() * choices.length | 0];
-    bot.replyPrivate(message, '<@' + message + '> *' + choice + '*');
+    bot.replyPrivate(message, '<@' + message.user + '> *' + message + '*');
     break;
   }
 });
