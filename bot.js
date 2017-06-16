@@ -34,8 +34,19 @@ controller.on('slash_command', function(bot, message) {
         currencyInformation = JSON.parse(body);
         const { USD } = currencyInformation;
         if(!USD){
-          const errorMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
-          bot.replyPrivate(message, '<@' + message.user + '> *' +errorMessage+ '*');
+          const replyObject = {
+              "attachments": [
+                  {
+                      "fallback": "New ticket from Andrea Lee - Ticket #1943: Can't reset my password - https://groove.hq/path/to/ticket/1943",
+                      "pretext": "New ticket from Andrea Lee",
+                      "title": "Ticket #1943: Can't reset my password",
+                      "title_link": "https://groove.hq/path/to/ticket/1943",
+                      "text": "Help! I tried to reset my password but nothing happened!",
+                      "color": "#7CD197"
+                  }
+              ]
+          }
+          bot.replyPrivate(message, replyObject);
         } else {
           bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + currency + " is $" + USD + '*');
         }
