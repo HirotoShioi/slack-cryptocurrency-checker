@@ -29,7 +29,7 @@ controller.on('slash_command', function(bot, message) {
       require('request')('http://api.coindesk.com/v1/bpi/currentprice.json',function(error,response,body){
           const bitcoinInformation = JSON.parse(body);
           console.log(bitcoinInformation);
-          bot.replyPrivate(message, '<@' + message.user + '> *' + "$" +bitcoinInformation.bpi.rate + '*');
+          bot.replyPrivate(message, '<@' + message.user + '> *' + "$" +bitcoinInformation.bpi.USD.rate + '*');
       });
     } else {
         bot.replyPrivate(message, '<@' + message.user + '> *' +replyMessage+ '*');
