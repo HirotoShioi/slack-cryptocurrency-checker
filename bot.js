@@ -34,21 +34,31 @@ controller.on('slash_command', function(bot, message) {
         currencyInformation = JSON.parse(body);
         const { USD } = currencyInformation;
         if(!USD){
-          const replyObject = {
+          const errorReplyObject = {
               "attachments": [
                   {
-                      "fallback": "Invalid input, please type in correct currency - https://www.cryptocompare.com/",
+                      "fallback": "Invalid input, please type in correct currency",
                       "pretext": "Invalid currency",
-                      "title": "Invalid currency",
-                      "title_link": "https://www.cryptocompare.com/",
+                      "title": "Crypto compare",
                       "text": "Currency was not found, please try again",
                       "color": "#cc0000"
                   }
               ]
           }
-          bot.replyPrivate(message, replyObject);
+          bot.replyPrivate(message, errorReplyObject);
         } else {
-          bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + currency + " is $" + USD + '*');
+          const successReplyObject = {
+              "attachments": [
+                  {
+                      "fallback": `Current rate for the ${currency} is $${USD} - https://www.cryptocompare.com/`,
+                      "title": `Current rate for the ${currency} is $${USD}`,
+                      "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
+                      "text": `Check them on Cryptocompare`,
+                      "color": "#3AA3E3"
+                  }
+              ]
+          }
+          bot.replyPrivate(message, successReplyObject);
         }
       }
     });
