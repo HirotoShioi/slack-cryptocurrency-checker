@@ -38,7 +38,7 @@ controller.on('slash_command', function(bot, message) {
                   {
                       "fallback": "Invalid input, please type in correct currency",
                       "pretext": "Invalid currency",
-                      "title": "Crypto compare",
+                      "title": "Crypto search",
                       "text": "Currency was not found, please try again",
                       "color": "#cc0000"
                   }
@@ -46,11 +46,9 @@ controller.on('slash_command', function(bot, message) {
           }
           bot.replyPrivate(message, errorReplyObject);
         } else {
-          require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {
-          
+          require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
             const data = JSON.parse(body);
             const { ImageUrl } = data.Data[currency];
-            console.log(data);
             const successReplyObject = {
                 "attachments": [
                     {
@@ -59,7 +57,21 @@ controller.on('slash_command', function(bot, message) {
                         "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
                         "text": `Check them on Cryptocompare`,
                         "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
-                        "color": "#3AA3E3"
+                        "color": "#3AA3E3",
+                        "actions": [
+                            {
+                                "name": "recommend",
+                                "text": "Recommend",
+                                "type": "button",
+                                "value": "recommend"
+                            },
+                            {
+                                "name": "no",
+                                "text": "No",
+                                "type": "button",
+                                "value": "bad"
+                            }
+                        ]
                     }
                 ]
             }
