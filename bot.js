@@ -58,6 +58,7 @@ controller.on('slash_command', function(bot, message) {
                         "text": `Check them on Cryptocompare`,
                         "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
                         "color": "#3AA3E3",
+                        "callback_id": "123",
                         "actions": [
                             {
                                 "name": "recommend",
@@ -82,4 +83,41 @@ controller.on('slash_command', function(bot, message) {
     });
     break;
   }
+});
+// receive an interactive message, and reply with a message that will replace the original
+controller.on('interactive_message_callback', function(bot, message) {
+
+    // check message.actions and message.callback_id to see what action to take...
+    bot.replyInteractive(message, {
+        text: '...',
+        attachments: [
+            {
+                title: 'My buttons',
+                callback_id: '123',
+                attachment_type: 'default',
+                actions: [
+                    {
+                        "name":"yes",
+                        "text": "Yes!",
+                        "value": "yes",
+                        "type": "button",
+                    },
+                    {
+                       "text": "No!",
+                        "name": "no",
+                        "value": "delete",
+                        "style": "danger",
+                        "type": "button",
+                        "confirm": {
+                          "title": "Are you sure?",
+                          "text": "This will do something!",
+                          "ok_text": "Yes",
+                          "dismiss_text": "No"
+                        }
+                    }
+                ]
+            }
+        ]
+    });
+
 });
