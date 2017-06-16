@@ -21,6 +21,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 });
 
 controller.on('slash_command', function(bot, message) {
+  console.log(message);
   switch (message.command) {
   case '/omikuji':
     let replyMessage = `Hello ${message.user}`;
@@ -30,7 +31,7 @@ controller.on('slash_command', function(bot, message) {
       require('request')('http://api.coindesk.com/v1/bpi/currentprice.json',function(error,response,body){
           const bitcoinInformation = JSON.parse(body);
           const { chartName } = bitcoinInformation;
-          const { code , rate , description} = bitcoinInformation.bpi.USD;
+          const { code , rate } = bitcoinInformation.bpi.USD;
           bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + chartName + " is " + rate + code + '*');
       });
     } else {
