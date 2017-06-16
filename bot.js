@@ -24,19 +24,18 @@ controller.on('slash_command', function(bot, message) {
   console.log(message);
   switch (message.command) {
   case '/currency':
-    let replyMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
-    
-    if(message.text.toUpperCase() === "BTC"){
-      //lookup btc
-      require('request')('https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=BTC,USD,EUR',function(error,response,body){
-          const cryptoCurrencyInformation = JSON.parse(body);
-          const { USD } = cryptoCurrencyInformation;
-          bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + message.text.toUpperCase() + " is " + USD + '*');
-      });
-    } else {
-        bot.replyPrivate(message, '<@' + message.user + '> *' +replyMessage+ '*');
-    }
-
+    const currency = message.text.toUpperCase();
+    const apiURL = `https://min-api.cryptocompare.com/data/price?fsym=${currency}&tsyms=BTC,USD,EUR`;
+    require('request')(apiURL,(error, response, body) => {
+      if(error){
+        const errorMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
+        bot.replyPrivate(message, '<@' + message.user + '> *' +errorMessage+ '*');
+      } else {
+        currencyInformation = JSON.parse(body);
+        const { USD } = currencyInformation;
+                  bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + message.text.toUpperCase() + " is $" + USD + '*');
+      }
+    });
     break;
   }
 });
