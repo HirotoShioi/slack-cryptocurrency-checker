@@ -21,7 +21,6 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 });
 
 controller.on('slash_command', function(bot, message) {
-  console.log(message);
   switch (message.command) {
   case '/currency':
     const currency = message.text.trim().toUpperCase();
@@ -47,18 +46,25 @@ controller.on('slash_command', function(bot, message) {
           }
           bot.replyPrivate(message, errorReplyObject);
         } else {
-          const successReplyObject = {
-              "attachments": [
-                  {
-                      "fallback": `Current rate for the ${currency} is $${USD} - https://www.cryptocompare.com/`,
-                      "title": `Current rate for the ${currency} is $${USD}`,
-                      "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
-                      "text": `Check them on Cryptocompare`,
-                      "color": "#3AA3E3"
-                  }
-              ]
-          }
-          bot.replyPrivate(message, successReplyObject);
+          require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {
+          
+            const data = JSON.parse(body);
+            const { ImageUrl } = data.Data[currency];
+            console.log(data);
+            const successReplyObject = {
+                "attachments": [
+                    {
+                        "fallback": `Current rate for the ${currency} is $${USD} - https://www.cryptocompare.com/`,
+                        "title": `Current rate for the ${currency} is $${USD}`,
+                        "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
+                        "text": `Check them on Cryptocompare`,
+                        "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
+                        "color": "#3AA3E3"
+                    }
+                ]
+            }
+            bot.replyPrivate(message, successReplyObject);
+          });
         }
       }
     });
