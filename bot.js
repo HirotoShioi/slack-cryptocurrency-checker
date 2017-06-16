@@ -1,5 +1,8 @@
 var botkit = require('botkit');
-const Numeral = require('numeral');
+
+const formatPrice = value => {
+  return require('numeral')(value).format('0,0.00[00000]');
+};
 
 var controller = botkit.slackbot({
   debug: false,
@@ -23,7 +26,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
-  case '/currency':
+  case '/ccc':
     const currency = message.text.trim().toUpperCase();
     const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
     require('request')(apiURL,(error, response, body) => {
@@ -58,20 +61,20 @@ controller.on('slash_command', function(bot, message) {
                     {
                       "author_name":CoinName,
                       "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-                      "fallback": `Current rate for the ${currency} is $${Numeral(PRICE).format('0,0.00')} - https://www.cryptocompare.com/`,
-                      "title": `$${PRICE} (${change}%)`,
+                      "fallback": `Current rate for the ${currency} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
+                      "title": `$${formatPrice(PRICE)} (${change}%)`,
                       "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
                       "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
                       "color": changeColor,
                       "fields": [
                           {
                               "title": "High",
-                              "value": `$${Numeral(HIGH24HOUR).format('0,0.00')}`,
+                              "value": `$${formatPrice(HIGH24HOUR)}`,
                               "short": true
                           },
                           {
                               "title": "Low",
-                              "value": `$${Numeral(LOW24HOUR).format('0,0.00')}`,
+                              "value": `$${formatPrice(LOW24HOUR)}`,
                               "short": true
                           },
                       ],
