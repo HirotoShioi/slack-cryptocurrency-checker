@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "botkit": "^0.5.4"
+    "botkit": "^0.5.4",
+    "request": "^2.81.0"
   }
 }

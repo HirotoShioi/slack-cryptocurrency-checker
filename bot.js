@@ -23,9 +23,13 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/omikuji':
-    var choices = message.text.split(',');
-    var choice = choices[Math.random() * choices.length | 0];
-    bot.replyPrivate(message, '<@' + message.user + '> *' + choice + '*');
+    if(message.text === "btc"){
+      //lookup btc
+      require('request')('http://api.coindesk.com/v1/bpi/currentprice.json',function(error,response,body){
+          const bitcoinInformation = JSON.parse(body);
+          bot.replyPrivate(message, '<@' + message.user + '> *' + "$" +bitcoinInformation.bpi.rate + '*');
+      });
+    }
     break;
   }
 });
