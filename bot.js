@@ -1,4 +1,5 @@
 var botkit = require('botkit');
+const Numeral = require('numeral');
 
 var controller = botkit.slackbot({
   debug: false,
@@ -48,34 +49,32 @@ controller.on('slash_command', function(bot, message) {
         } else {
           require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
             const data = JSON.parse(body);
-            const { ImageUrl } = data.Data[currency];
+            const { ImageUrl, CoinName } = data.Data[currency];
             const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
+            const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
+            const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
             const successReplyObject = {
                 "attachments": [
                     {
-                        "fallback": `Current rate for the ${currency} is $${PRICE} - https://www.cryptocompare.com/`,
-                        "title": `Current rate for the ${currency} is $${PRICE}`,
-                        "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
-                        "text": `Check them on Cryptocompare`,
-                        "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
-                        "color": "#3AA3E3",
-                        "fields": [
-                            {
-                                "title": "High",
-                                "value": HIGH24HOUR,
-                                "short": true
-                            },
-                            {
-                                "title": "Low",
-                                "value": LOW24HOUR,
-                                "short": true
-                            },
-                            {
-                                "title": "Change",
-                                "value": CHANGE24HOUR,
-                                "short": true
-                            }
-                        ],
+                      "author_name":CoinName,
+                      "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
+                      "fallback": `Current rate for the ${currency} is $${Numeral(PRICE).format('0,0.00')} - https://www.cryptocompare.com/`,
+                      "title": `$${PRICE} (${change}%)`,
+                      "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
+                      "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
+                      "color": changeColor,
+                      "fields": [
+                          {
+                              "title": "High",
+                              "value": `$${Numeral(HIGH24HOUR).format('0,0.00')}`,
+                              "short": true
+                          },
+                          {
+                              "title": "Low",
+                              "value": `$${Numeral(LOW24HOUR).format('0,0.00')}`,
+                              "short": true
+                          },
+                      ],
                     }
                 ]
             }
