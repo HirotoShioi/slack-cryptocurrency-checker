@@ -24,7 +24,7 @@ controller.on('slash_command', function(bot, message) {
   console.log(message);
   switch (message.command) {
   case '/currency':
-    const currency = message.text.toUpperCase();
+    const currency = message.text.trim().toUpperCase();
     const apiURL = `https://min-api.cryptocompare.com/data/price?fsym=${currency}&tsyms=BTC,USD,EUR`;
     require('request')(apiURL,(error, response, body) => {
       if(error){
