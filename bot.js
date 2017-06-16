@@ -28,12 +28,17 @@ controller.on('slash_command', function(bot, message) {
     const apiURL = `https://min-api.cryptocompare.com/data/price?fsym=${currency}&tsyms=BTC,USD,EUR`;
     require('request')(apiURL,(error, response, body) => {
       if(error){
-        const errorMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
+        const errorMessage = `Error with the api, please try again`;
         bot.replyPrivate(message, '<@' + message.user + '> *' +errorMessage+ '*');
       } else {
         currencyInformation = JSON.parse(body);
         const { USD } = currencyInformation;
-                  bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + message.text.toUpperCase() + " is $" + USD + '*');
+        if(!USD){
+          const errorMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
+          bot.replyPrivate(message, '<@' + message.user + '> *' +errorMessage+ '*');
+        } else {
+          bot.replyPrivate(message, '<@' + message.user + '> *' + "Current rate for the " + currency + " is $" + USD + '*');
+        }
       }
     });
     break;
