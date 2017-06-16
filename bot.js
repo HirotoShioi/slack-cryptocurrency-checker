@@ -49,7 +49,7 @@ controller.on('slash_command', function(bot, message) {
           require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
             const data = JSON.parse(body);
             const { ImageUrl } = data.Data[currency];
-            const { HIGH24HOUR, LOW24HOUR, PRICE } = RAW[currency].USD;
+            const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
             const successReplyObject = {
                 "attachments": [
                     {
@@ -59,6 +59,23 @@ controller.on('slash_command', function(bot, message) {
                         "text": `Check them on Cryptocompare`,
                         "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
                         "color": "#3AA3E3",
+                        "fields": [
+                            {
+                                "title": "High",
+                                "value": HIGH24HOUR,
+                                "short": true
+                            },
+                            {
+                                "title": "Low",
+                                "value": LOW24HOUR,
+                                "short": true
+                            },
+                            {
+                                "title": "Change",
+                                "value": CHANGE24HOUR,
+                                "short": true
+                            }
+                        ],
                     }
                 ]
             }
@@ -69,21 +86,4 @@ controller.on('slash_command', function(bot, message) {
     });
     break;
   }
-});
-// receive an interactive message, and reply with a message that will replace the original
-controller.on('interactive_message_callback', function(bot, message) {
-
-    // check message.actions and message.callback_id to see what action to take...
-    console.log(message);
-    bot.replyInteractive(message, {
-        text: '...',
-        attachments: [
-            {
-                title: 'My buttons',
-                callback_id: '123',
-                attachment_type: 'default',
-            }
-        ]
-    });
-
 });
