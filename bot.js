@@ -24,15 +24,15 @@ controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/currency':
     const currency = message.text.trim().toUpperCase();
-    const apiURL = `https://min-api.cryptocompare.com/data/price?fsym=${currency}&tsyms=BTC,USD,EUR`;
+    const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
     require('request')(apiURL,(error, response, body) => {
       if(error){
         const errorMessage = `Error with the api, please try again`;
         bot.replyPrivate(message, '<@' + message.user + '> *' +errorMessage+ '*');
       } else {
         currencyInformation = JSON.parse(body);
-        const { USD } = currencyInformation;
-        if(!USD){
+        const { RAW } = currencyInformation;
+        if(!RAW){
           const errorReplyObject = {
               "attachments": [
                   {
@@ -49,30 +49,16 @@ controller.on('slash_command', function(bot, message) {
           require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
             const data = JSON.parse(body);
             const { ImageUrl } = data.Data[currency];
+            const { HIGH24HOUR, LOW24HOUR, PRICE } = RAW[currency].USD;
             const successReplyObject = {
                 "attachments": [
                     {
-                        "fallback": `Current rate for the ${currency} is $${USD} - https://www.cryptocompare.com/`,
-                        "title": `Current rate for the ${currency} is $${USD}`,
+                        "fallback": `Current rate for the ${currency} is $${PRICE} - https://www.cryptocompare.com/`,
+                        "title": `Current rate for the ${currency} is $${PRICE}`,
                         "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
                         "text": `Check them on Cryptocompare`,
                         "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
                         "color": "#3AA3E3",
-                        "callback_id": "123",
-                        "actions": [
-                            {
-                                "name": "recommend",
-                                "text": "Recommend",
-                                "type": "button",
-                                "value": "recommend"
-                            },
-                            {
-                                "name": "no",
-                                "text": "No",
-                                "type": "button",
-                                "value": "bad"
-                            }
-                        ]
                     }
                 ]
             }
