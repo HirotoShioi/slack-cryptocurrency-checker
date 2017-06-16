@@ -23,8 +23,8 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   console.log(message);
   switch (message.command) {
-  case '/omikuji':
-    let replyMessage = `Hello ${message.user}`;
+  case '/currency':
+    let replyMessage = `Invalid currency please type in correct one (ex. btc, eth, etc)`;
 
     if(message.text === "btc"){
       //lookup btc
