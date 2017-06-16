@@ -37,12 +37,12 @@ controller.on('slash_command', function(bot, message) {
           const replyObject = {
               "attachments": [
                   {
-                      "fallback": "New ticket from Andrea Lee - Ticket #1943: Can't reset my password - https://groove.hq/path/to/ticket/1943",
-                      "pretext": "New ticket from Andrea Lee",
-                      "title": "Ticket #1943: Can't reset my password",
-                      "title_link": "https://groove.hq/path/to/ticket/1943",
-                      "text": "Help! I tried to reset my password but nothing happened!",
-                      "color": "#7CD197"
+                      "fallback": "Invalid input, please type in correct currency - https://www.cryptocompare.com/",
+                      "pretext": "Invalid currency",
+                      "title": "Invalid currency",
+                      "title_link": "https://www.cryptocompare.com/",
+                      "text": "Currency was not found, please try again",
+                      "color": "#cc0000"
                   }
               ]
           }
