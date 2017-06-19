@@ -91,11 +91,11 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/ccc':
-    const currency = message.text.trim().toUpperCase();
-    if(message.command === "list"){
+    const [ command ] = message.text.trim().split(" ");
+    if(command === "list"){
 
     } else {
-      searchCurrency(currency, bot ,message);
+      searchCurrency(command.toUpperCase() , bot ,message);
     }
     break;
   }
