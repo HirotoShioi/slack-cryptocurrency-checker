@@ -30,7 +30,6 @@ const sendErrorMessage = (bot, message) => {
 };
 
 const createAttachmentObject = (currency, coinList) => {
-  console.log(currency);
   const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
   const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
   const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
@@ -57,6 +56,34 @@ const createAttachmentObject = (currency, coinList) => {
     ],
   };
   return attachmentObj;
+};
+
+async function showCurrency(bot, message){
+  const command = message.text.trim();
+  let apiURL = "";
+  const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
+  const successReplyObject = {
+    "attachments":[]
+  };
+  if(command === "list"){
+    const currencies = ["BTC", "ETH", "ETC", "XRP"];
+    apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
+  } else {
+    let currency = command.toUpperCase();
+    apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
+  }
+  const currencyInformation = await fetchData(apiURL);
+  const coinList = await fetchData(coinListURL);
+  if(!currencyInformation.RAW || coinList.Response !== "Success"){
+    sendErrorMessage(bot, message);
+  } else {
+    const currencyAry = Object.values(currencyInformation.RAW);
+    currencyAry.forEach(currency => {
+      const attachmentObj = createAttachmentObject(currency, coinList);
+      successReplyObject.attachments.push(attachmentObj);
+    });
+    await bot.replyPrivate(message, successReplyObject);
+  }
 };
 
 async function showCurrencyList(bot, message){
@@ -123,9 +150,9 @@ controller.on('slash_command', function(bot, message) {
   case '/ccc':
     const [ command ] = message.text.trim().split(" ");
     if(command === "list"){
-      showCurrencyList(bot, message);
+      showCurrency(bot, message);
     } else {
-      searchCurrency(command.toUpperCase(), bot ,message);
+      showCurrency(bot ,message);
     }
     break;
   }
