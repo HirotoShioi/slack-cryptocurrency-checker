@@ -1,0 +1,26 @@
+{
+  "name": "slack-cryptocurrency-checker",
+  "scripts": {
+  },
+  "env": {
+    "BOTKIT_SLACK_CLIENT_ID": {
+      "required": true
+    },
+    "BOTKIT_SLACK_CLIENT_SECRET": {
+      "required": true
+    },
+    "TZ": {
+      "required": true
+    }
+  },
+  "formation": {
+  },
+  "addons": [
+
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
