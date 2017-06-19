@@ -19,6 +19,58 @@ const sendErrorMessage = (bot, message) => {
     bot.replyPrivate(message, errorReplyObject);
 };
 
+const showCurrencyList = (bot, message) => {
+  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
+  require('request')(apiURL,(error, response, body) => {
+    if(error){
+      sendErrorMessage(bot, message);
+    } else {
+      currencyInformation = JSON.parse(body);
+      const { BTC, ETH, ETC, XRP } = currencyInformation.RAW;
+      const currencyAry = [ BTC, ETH, ETC, XRP];
+      if(!currencyInformation.RAW){
+        sendErrorMessage(bot, message);
+      } else {
+        require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
+          const data = JSON.parse(body);
+          currencyAry.forEach(currency => {
+            const { ImageUrl, CoinName } = data.Data[currency];
+            const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
+            const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
+            const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
+            const successReplyObject = {
+                "attachments": [
+                    {
+                      "author_name":CoinName,
+                      "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
+                      "fallback": `Current rate for the ${currency} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
+                      "title": `$${formatPrice(PRICE)} (${change}%)`,
+                      "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
+                      "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
+                      "color": changeColor,
+                      "fields": [
+                          {
+                              "title": "High",
+                              "value": `$${formatPrice(HIGH24HOUR)}`,
+                              "short": true
+                          },
+                          {
+                              "title": "Low",
+                              "value": `$${formatPrice(LOW24HOUR)}`,
+                              "short": true
+                          },
+                      ],
+                    }
+                ]
+            }
+            bot.replyPrivate(message, successReplyObject);
+          });
+        });
+      }
+    }
+  });
+};
+
 const searchCurrency = (currency, bot , message) => {
   const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
   require('request')(apiURL,(error, response, body) => {
@@ -93,9 +145,9 @@ controller.on('slash_command', function(bot, message) {
   case '/ccc':
     const [ command ] = message.text.trim().split(" ");
     if(command === "list"){
-
+      showCurrencyList(bot, message);
     } else {
-      searchCurrency(command.toUpperCase() , bot ,message);
+      searchCurrency(command.toUpperCase(), bot ,message);
     }
     break;
   }
