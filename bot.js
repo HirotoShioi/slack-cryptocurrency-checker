@@ -63,7 +63,11 @@ async function showCurrency(bot, message){
   let apiURL = "";
   const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
   const successReplyObject = {
-    "attachments":[]
+    "attachments":[
+      {
+        "title":"Cryptocurrency Checker"
+      }
+    ]
   };
   if(command === "list"){
     const currencies = ["BTC", "ETH", "ETC", "XRP"];
