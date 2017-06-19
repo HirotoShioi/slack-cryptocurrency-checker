@@ -5,6 +5,15 @@ const formatPrice = value => {
   return require('numeral')(value).format('0,0.00[00000]');
 };
 
+const fetchData = (url) => {
+  const p = new Promise((resolve, reject) =>{
+    require('request')(url, (error, response, body) => {
+      resolve(JSON.parse(body));
+    });
+  });
+  return p;
+};
+
 const sendErrorMessage = (bot, message) => {
   const errorReplyObject = {
     "attachments": [
@@ -20,16 +29,8 @@ const sendErrorMessage = (bot, message) => {
   bot.replyPrivate(message, errorReplyObject);
 };
 
-const fetchData = (url) => {
-  const p = new Promise((resolve, reject) =>{
-    request(url, (error, response, body) => {
-      resolve(JSON.parse(body));
-    });
-  });
-  return p;
-};
-
 const createAttachmentObject = (currency, coinList) => {
+  console.log(currency);
   const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
   const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
   const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
@@ -79,54 +80,23 @@ async function showCurrencyList(bot, message){
   }
 };
 
-const searchCurrency = (currency, bot , message) => {
+async function searchCurrency(currency, bot, message){
   const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
-  request(apiURL,(error, response, body) => {
-    if(error){
-      sendErrorMessage(bot, message);
-    } else {
-      currencyInformation = JSON.parse(body);
-      const { RAW } = currencyInformation;
-      if(!RAW){
-        sendErrorMessage(bot, message);
-      } else {
-        request("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
-          const data = JSON.parse(body);
-          const { ImageUrl, CoinName } = data.Data[currency];
-          const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
-          const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
-          const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
-          const successReplyObject = {
-              "attachments": [
-                  {
-                    "author_name":CoinName,
-                    "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-                    "fallback": `Current rate for the ${currency} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
-                    "title": `$${formatPrice(PRICE)} (${change}%)`,
-                    "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
-                    "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
-                    "color": changeColor,
-                    "fields": [
-                        {
-                            "title": "High",
-                            "value": `$${formatPrice(HIGH24HOUR)}`,
-                            "short": true
-                        },
-                        {
-                            "title": "Low",
-                            "value": `$${formatPrice(LOW24HOUR)}`,
-                            "short": true
-                        },
-                    ],
-                  }
-              ]
-          }
-          bot.replyPrivate(message, successReplyObject);
-        });
-      }
-    }
-  });
-}
+  const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
+  const successReplyObject = {
+    "attachments":[]
+  };
+  const currencyInformation = await fetchData(apiURL);
+  const coinList = await fetchData(coinListURL);
+  if(!currencyInformation.RAW || coinList.Response !== "Success"){
+    sendErrorMessage(bot, message);
+  } else {
+    const searchedCurrency = currencyInformation.RAW[currency];
+    const attachmentObj = createAttachmentObject(searchedCurrency, coinList);
+    successReplyObject.attachments.push(attachmentObj);
+    await bot.replyPrivate(message, successReplyObject);
+  }
+};
 
 var controller = botkit.slackbot({
   debug: false,
