@@ -6,19 +6,20 @@ const formatPrice = value => {
 };
 
 const sendErrorMessage = (bot, message) => {
-    const errorReplyObject = {
-        "attachments": [
-            {
-                "fallback": "Something went wrong with the",
-                "pretext": "Check failed",
-                "title": "Cryptocurrency checker",
-                "text": "There was an error with CCC, please try again",
-                "color": "#cc0000"
-            }
-        ]
-    }
-    bot.replyPrivate(message, errorReplyObject);
+  const errorReplyObject = {
+    "attachments": [
+      {
+          "fallback": "Something went wrong with the",
+          "pretext": "Check failed",
+          "title": "Cryptocurrency checker",
+          "text": "There was an error with CCC, please try again",
+          "color": "#cc0000"
+      }
+    ]
+  }
+  bot.replyPrivate(message, errorReplyObject);
 };
+
 const fetchData = (url) => {
   const p = new Promise((resolve, reject) =>{
     request(url, (error, response, body) => {
@@ -26,6 +27,35 @@ const fetchData = (url) => {
     });
   });
   return p;
+};
+
+const createAttachmentObject = (currency, coinList) => {
+  const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
+  const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
+  const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
+  const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
+  const attachmentObj = {
+    "author_name":CoinName,
+    "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
+    "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
+    "title": `$${formatPrice(PRICE)} (${change}%)`,
+    "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
+    "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
+    "color": changeColor,
+    "fields": [
+        {
+            "title": "High",
+            "value": `$${formatPrice(HIGH24HOUR)}`,
+            "short": true
+        },
+        {
+            "title": "Low",
+            "value": `$${formatPrice(LOW24HOUR)}`,
+            "short": true
+        },
+    ],
+  };
+  return attachmentObj;
 };
 
 async function showCurrencyList(bot, message){
@@ -42,32 +72,8 @@ async function showCurrencyList(bot, message){
     const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
     const currencyAry = [ BTC, ETH, ETC, XRP];
     currencyAry.forEach(currency => {
-      const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
-      const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
-      const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
-      const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
-      const success = {
-        "author_name":CoinName,
-        "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-        "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
-        "title": `$${formatPrice(PRICE)} (${change}%)`,
-        "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
-        "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
-        "color": changeColor,
-        "fields": [
-            {
-                "title": "High",
-                "value": `$${formatPrice(HIGH24HOUR)}`,
-                "short": true
-            },
-            {
-                "title": "Low",
-                "value": `$${formatPrice(LOW24HOUR)}`,
-                "short": true
-            },
-        ],
-      };
-      successReplyObject.attachments.push(success);    
+      const attachmentObj = createAttachmentObject(currency, coinList);
+      successReplyObject.attachments.push(attachmentObj);
     });
     await bot.replyPrivate(message, successReplyObject);
   }
