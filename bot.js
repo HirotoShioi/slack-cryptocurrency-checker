@@ -6,12 +6,12 @@ const formatPrice = value => {
 };
 
 const fetchData = (url) => {
-  const p = new Promise((resolve, reject) =>{
+  const result = new Promise((resolve, reject) =>{
     require('request')(url, (error, response, body) => {
       resolve(JSON.parse(body));
     });
   });
-  return p;
+  return result;
 };
 
 const sendErrorMessage = (bot, message) => {
