@@ -19,58 +19,58 @@ const sendErrorMessage = (bot, message) => {
     }
     bot.replyPrivate(message, errorReplyObject);
 };
-
-const showCurrencyList = (bot, message) => {
-  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
-  request(apiURL,(error, response, body) => {
-    if(error){
-      sendErrorMessage(bot, message);
-    } else {
-      currencyInformation = JSON.parse(body);
-      const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
-      const currencyAry = [ BTC, ETH, ETC, XRP];
-      if(!currencyInformation.RAW){
-        sendErrorMessage(bot, message);
-      } else {
-        request("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
-          const data = JSON.parse(body);
-          currencyAry.forEach(currency => {
-            console.log(currency);
-            const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
-            const { ImageUrl, CoinName } = data.Data[FROMSYMBOL];
-            const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
-            const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
-            const successReplyObject = {
-                "attachments": [
-                    {
-                      "author_name":CoinName,
-                      "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-                      "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
-                      "title": `$${formatPrice(PRICE)} (${change}%)`,
-                      "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
-                      "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
-                      "color": changeColor,
-                      "fields": [
-                          {
-                              "title": "High",
-                              "value": `$${formatPrice(HIGH24HOUR)}`,
-                              "short": true
-                          },
-                          {
-                              "title": "Low",
-                              "value": `$${formatPrice(LOW24HOUR)}`,
-                              "short": true
-                          },
-                      ],
-                    }
-                ]
-            }
-            bot.replyPrivate(message, successReplyObject);
-          });
-        });
-      }
-    }
+const fetchData = (url) => {
+  const p = new Promise((resolve, reject) =>{
+    request(apiURL, (error, response, body) => {
+      resolve(JSON.parse(body));
+    });
+    return p;
   });
+};
+
+async function showCurrencyList(bot, message){
+  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
+  const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
+  const successReplyObject = {
+    "attachments":[]
+  };
+  const currencyInformation = await fetchData(apiURL);
+  const coinList = await fetchData(coinListURL);
+  if(!currencyInformation.RAW || !coinList){
+    sendErrorMessage(bot, message);
+  } else {
+    const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
+    const currencyAry = [ BTC, ETH, ETC, XRP];
+    currencyAry.forEach(currency => {
+      const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
+      const { ImageUrl, CoinName } = data.Data[FROMSYMBOL];
+      const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
+      const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
+      const success = {
+        "author_name":CoinName,
+        "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
+        "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
+        "title": `$${formatPrice(PRICE)} (${change}%)`,
+        "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
+        "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
+        "color": changeColor,
+        "fields": [
+            {
+                "title": "High",
+                "value": `$${formatPrice(HIGH24HOUR)}`,
+                "short": true
+            },
+            {
+                "title": "Low",
+                "value": `$${formatPrice(LOW24HOUR)}`,
+                "short": true
+            },
+        ],
+      };
+      successReplyObject.attachments.push(success);    
+    });
+    await bot.replyPrivate(message, successReplyObject);
+  }
 };
 
 const searchCurrency = (currency, bot , message) => {
