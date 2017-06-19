@@ -71,7 +71,7 @@ async function showCurrency(bot, message){
     ]
   };
   if(command === "list"){
-    const currencies = ["BTC", "ETH", "ETC", "XRP"];
+    const currencies = ["BTC", "ETH", "ETC", "XRP", "DASH"];
     apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
   } else {
     let currency = command.toUpperCase();
