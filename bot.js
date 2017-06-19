@@ -65,7 +65,8 @@ async function showCurrency(bot, message){
   const successReplyObject = {
     "attachments":[
       {
-        "title":"Cryptocurrency Checker"
+        "title":"Cryptocurrency Checker",
+        "color": "#224F8A"
       }
     ]
   };
