@@ -79,48 +79,13 @@ async function showCurrency(bot, message){
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
     currencyAry.forEach(currency => {
-      const attachmentObj = createAttachmentObject(currency, coinList);
-      successReplyObject.attachments.push(attachmentObj);
+      if(!currency.USD) {
+        sendErrorMessage(bot, message);
+      } else {
+       const attachmentObj = createAttachmentObject(currency, coinList);
+       successReplyObject.attachments.push(attachmentObj);       
+      }
     });
-    await bot.replyPrivate(message, successReplyObject);
-  }
-};
-
-async function showCurrencyList(bot, message){
-  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
-  const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
-  const successReplyObject = {
-    "attachments":[]
-  };
-  const currencyInformation = await fetchData(apiURL);
-  const coinList = await fetchData(coinListURL);
-  if(!currencyInformation.RAW || coinList.Response !== "Success"){
-    sendErrorMessage(bot, message);
-  } else {
-    const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
-    const currencyAry = [ BTC, ETH, ETC, XRP];
-    currencyAry.forEach(currency => {
-      const attachmentObj = createAttachmentObject(currency, coinList);
-      successReplyObject.attachments.push(attachmentObj);
-    });
-    await bot.replyPrivate(message, successReplyObject);
-  }
-};
-
-async function searchCurrency(currency, bot, message){
-  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
-  const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
-  const successReplyObject = {
-    "attachments":[]
-  };
-  const currencyInformation = await fetchData(apiURL);
-  const coinList = await fetchData(coinListURL);
-  if(!currencyInformation.RAW || coinList.Response !== "Success"){
-    sendErrorMessage(bot, message);
-  } else {
-    const searchedCurrency = currencyInformation.RAW[currency];
-    const attachmentObj = createAttachmentObject(searchedCurrency, coinList);
-    successReplyObject.attachments.push(attachmentObj);
     await bot.replyPrivate(message, successReplyObject);
   }
 };
@@ -148,12 +113,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/ccc':
-    const [ command ] = message.text.trim().split(" ");
-    if(command === "list"){
-      showCurrency(bot, message);
-    } else {
-      showCurrency(bot ,message);
-    }
+    showCurrency(bot ,message);
     break;
   }
 });
