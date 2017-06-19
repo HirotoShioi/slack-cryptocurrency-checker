@@ -1,4 +1,5 @@
-var botkit = require('botkit');
+const botkit = require('botkit');
+const request = require('request');
 
 const formatPrice = value => {
   return require('numeral')(value).format('0,0.00[00000]');
@@ -21,21 +22,22 @@ const sendErrorMessage = (bot, message) => {
 
 const showCurrencyList = (bot, message) => {
   const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP&tsyms=USD`;
-  require('request')(apiURL,(error, response, body) => {
+  request(apiURL,(error, response, body) => {
     if(error){
       sendErrorMessage(bot, message);
     } else {
       currencyInformation = JSON.parse(body);
-      const { BTC, ETH, ETC, XRP } = currencyInformation.RAW;
+      const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
       const currencyAry = [ BTC, ETH, ETC, XRP];
       if(!currencyInformation.RAW){
         sendErrorMessage(bot, message);
       } else {
-        require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
+        request("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
           const data = JSON.parse(body);
           currencyAry.forEach(currency => {
-            const { ImageUrl, CoinName } = data.Data[currency];
-            const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
+            console.log(currency);
+            const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency.USD;
+            const { ImageUrl, CoinName } = data.Data[FROMSYMBOL];
             const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
             const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
             const successReplyObject = {
@@ -43,9 +45,9 @@ const showCurrencyList = (bot, message) => {
                     {
                       "author_name":CoinName,
                       "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-                      "fallback": `Current rate for the ${currency} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
+                      "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
                       "title": `$${formatPrice(PRICE)} (${change}%)`,
-                      "title_link": `https://www.cryptocompare.com/coins/${currency.toLowerCase()}/overview/USD`,
+                      "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
                       "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
                       "color": changeColor,
                       "fields": [
@@ -73,7 +75,7 @@ const showCurrencyList = (bot, message) => {
 
 const searchCurrency = (currency, bot , message) => {
   const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currency}&tsyms=USD`;
-  require('request')(apiURL,(error, response, body) => {
+  request(apiURL,(error, response, body) => {
     if(error){
       sendErrorMessage(bot, message);
     } else {
@@ -82,7 +84,7 @@ const searchCurrency = (currency, bot , message) => {
       if(!RAW){
         sendErrorMessage(bot, message);
       } else {
-        require('request')("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
+        request("https://www.cryptocompare.com/api/data/coinlist/",(error, response, body) => {      
           const data = JSON.parse(body);
           const { ImageUrl, CoinName } = data.Data[currency];
           const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR } = RAW[currency].USD;
