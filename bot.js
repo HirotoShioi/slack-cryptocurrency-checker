@@ -36,7 +36,7 @@ async function showCurrencyList(bot, message){
   };
   const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
-  if(!currencyInformation.RAW || !coinList){
+  if(!currencyInformation.RAW || !coinList.USD){
     sendErrorMessage(bot, message);
   } else {
     const { BTC, ETH, ETC, XRP }= currencyInformation.RAW;
