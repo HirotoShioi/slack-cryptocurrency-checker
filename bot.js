@@ -66,6 +66,9 @@ const createAttachmentObject = (currency, coinList, exchange) => {
 };
 
 async function showCurrency(bot, message){
+  if(message.text.trim().split(" ").length >= 3) {
+    sendErrorMessage(bot, message);
+  }
   const [ command, exchanges ] = message.text.trim().split(" ");
   let apiURL = "";
   let exchange = (exchanges) ? exchanges.toUpperCase() : "USD";
