@@ -23,10 +23,10 @@ const sendErrorMessage = (bot, message) => {
   const errorReplyObject = {
     "attachments": [
       {
-          "fallback": "Something went wrong with the",
+          "fallback": "Something went wrong",
           "pretext": "Check failed",
           "title": "Cryptocurrency checker",
-          "text": "There was an error with CCC, please try again",
+          "text": "Invalid command. Please try again",
           "color": "#cc0000"
       }
     ]
@@ -74,7 +74,7 @@ async function showCurrency(bot, message){
     "attachments":[
       {
         "title":"Cryptocurrency Checker",
-        "color": "#224F8A"
+        "color": "#4d90fe"
       }
     ]
   };
