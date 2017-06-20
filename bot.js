@@ -35,10 +35,12 @@ const sendErrorMessage = (bot, message) => {
 };
 
 const createAttachmentObject = (currency, coinList, exchange) => {
+  const rising = "#2ab27b";
+  const falling = "#cc0000";
   const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency[exchange];
   const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
   const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
-  const changeColor = (change < 0) ? "#CC0000" : "#2ab27b";
+  const changeColor = (change < 0) ? falling : rising;
   const attachmentObj = {
     "author_name":CoinName,
     "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
@@ -76,6 +78,7 @@ async function showCurrency(bot, message){
       }
     ]
   };
+  //Need refactoring!!
   if(command === "list" || command === ""){
     let currencies = ["BTC", "ETH", "ETC", "XRP", "DASH"].filter(c => {
       return (c !== exchange);
