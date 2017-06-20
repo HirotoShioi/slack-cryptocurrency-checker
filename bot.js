@@ -83,11 +83,11 @@ async function showCurrency(bot, message){
     sendErrorMessage(bot, message);
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
-    currencyAry.forEach(currency => {
-      if(!currency.USD) {
+    currencyAry.forEach(curr => {
+      if(!curr.USD) {
         sendErrorMessage(bot, message);
       } else {
-       const attachmentObj = createAttachmentObject(currency, coinList);
+       const attachmentObj = createAttachmentObject(curr, coinList);
        successReplyObject.attachments.push(attachmentObj);       
       }
     });
