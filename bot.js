@@ -8,7 +8,11 @@ const formatPrice = value => {
 const fetchData = (url) => {
   const result = new Promise((resolve, reject) =>{
     require('request')(url, (error, response, body) => {
-      resolve(JSON.parse(body));
+      if (body){
+        resolve(JSON.parse(body));
+      } else {
+        reject(JSON.parse(error));
+      }
     });
   });
   return result;
@@ -96,7 +100,7 @@ async function showCurrency(bot, message){
   }
 };
 
-var controller = botkit.slackbot({
+const controller = botkit.slackbot({
   debug: false,
   json_file_store: './simple_storage/'
 }).configureSlackApp({
