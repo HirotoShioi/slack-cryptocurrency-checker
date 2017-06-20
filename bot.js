@@ -65,7 +65,7 @@ const createAttachmentObject = (currency, coinList, exchange) => {
 async function showCurrency(bot, message){
   const [ command, exchanges ] = message.text.trim().split(" ");
   let apiURL = "";
-  let exchange = (exchanges) ? exchanges : "USD";
+  let exchange = (exchanges) ? exchanges.toUpperCase() : "USD";
   const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
   const successReplyObject = {
     "attachments":[
@@ -89,7 +89,7 @@ async function showCurrency(bot, message){
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
     currencyAry.forEach(curr => {
-      if(!curr) {
+      if(!curr || curr[exchange].FROMSYMBOL === exchange) {
         sendErrorMessage(bot, message);
       } else {
        const attachmentObj = createAttachmentObject(curr, coinList, exchange);
