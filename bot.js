@@ -70,7 +70,7 @@ async function showCurrency(bot, message){
       }
     ]
   };
-  if(command === "list"){
+  if(command === "list" || command === ""){
     const currencies = ["BTC", "ETH", "ETC", "XRP", "DASH"];
     apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.join(",")}&tsyms=USD`;
   } else {
