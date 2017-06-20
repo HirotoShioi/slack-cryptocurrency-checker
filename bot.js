@@ -1,8 +1,9 @@
 const botkit = require('botkit');
 const request = require('request');
 
-const formatPrice = value => {
-  return require('numeral')(value).format('0,0.00[00000]');
+const formatPrice = (value, exchange) => {
+  const formatNumber = require('numeral')(value).format('0,0.00[00000]');
+  return (exchange === "USD") ? `$${formatNumber}` : `${formatNumber}${exchange}`;
 };
 
 const fetchData = (url) => {
@@ -41,20 +42,20 @@ const createAttachmentObject = (currency, coinList, exchange) => {
   const attachmentObj = {
     "author_name":CoinName,
     "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
-    "fallback": `Current rate for the ${FROMSYMBOL} is $${formatPrice(PRICE)} - https://www.cryptocompare.com/`,
-    "title": `$${formatPrice(PRICE)} (${change}%)`,
+    "fallback": `Current rate for the ${FROMSYMBOL} is ${formatPrice(PRICE, exchange)} - https://www.cryptocompare.com/`,
+    "title": `${formatPrice(PRICE, exchange)} (${change}%)`,
     "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
     "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
     "color": changeColor,
     "fields": [
         {
             "title": "High",
-            "value": `$${formatPrice(HIGH24HOUR)}`,
+            "value": `${formatPrice(HIGH24HOUR, exchange)}`,
             "short": true
         },
         {
             "title": "Low",
-            "value": `$${formatPrice(LOW24HOUR)}`,
+            "value": `${formatPrice(LOW24HOUR, exchange)}`,
             "short": true
         },
     ],
@@ -75,7 +76,6 @@ async function showCurrency(bot, message){
       }
     ]
   };
-  console.log(exchange);
   if(command === "list" || command === ""){
     apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=BTC,ETH,ETC,XRP,DASH&tsyms=${exchange}`;
   } else {
@@ -89,7 +89,7 @@ async function showCurrency(bot, message){
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
     currencyAry.forEach(curr => {
-      if(!curr || curr[exchange].FROMSYMBOL === exchange) {
+      if(!curr) {
         sendErrorMessage(bot, message);
       } else {
        const attachmentObj = createAttachmentObject(curr, coinList, exchange);
