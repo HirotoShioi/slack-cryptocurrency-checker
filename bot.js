@@ -19,14 +19,14 @@ const fetchData = (url) => {
   return result;
 };
 
-const sendErrorMessage = () => {
+const sendErrorMessage = ( message = "Invalid command. Please try again" ) => {
   const errorReplyObject = {
     "attachments": [
       {
           "fallback": "Something went wrong",
           "pretext": "Check failed",
           "title": "Cryptocurrency checker",
-          "text": "Invalid command. Please try again",
+          "text": message,
           "color": "#cc0000"
       }
     ]
