@@ -19,7 +19,7 @@ const fetchData = (url) => {
   return result;
 };
 
-const sendErrorMessage = (bot, message) => {
+const sendErrorMessage = () => {
   const errorReplyObject = {
     "attachments": [
       {
@@ -31,7 +31,7 @@ const sendErrorMessage = (bot, message) => {
       }
     ]
   }
-  bot.replyPrivate(message, errorReplyObject);
+  return errorReplyObject;
 };
 
 const createAttachmentObject = (currency, coinList, exchange) => {
@@ -65,9 +65,9 @@ const createAttachmentObject = (currency, coinList, exchange) => {
   return attachmentObj;
 };
 
-async function showCurrency(bot, message){
+async function showCurrency(message){
   if(message.text.trim().split(" ").length >= 3) {
-    sendErrorMessage(bot, message);
+    return sendErrorMessage();
   }
   const [ command, exchanges ] = message.text.trim().split(" ");
   let apiURL = "";
@@ -96,18 +96,18 @@ async function showCurrency(bot, message){
   const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
-    sendErrorMessage(bot, message);
+    return sendErrorMessage();
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
     currencyAry.forEach(curr => {
       if(!curr) {
-        sendErrorMessage(bot, message);
+        return sendErrorMessage();
       } else {
        const attachmentObj = createAttachmentObject(curr, coinList, exchange);
        successReplyObject.attachments.push(attachmentObj);       
       }
     });
-    await bot.replyPrivate(message, successReplyObject);
+    return successReplyObject;
   }
 };
 
@@ -134,7 +134,9 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/ccc':
-    showCurrency(bot ,message);
+    const reply = showCurrency(message).then(reply => {
+      bot.replyPrivate(message, reply);
+    });
     break;
   }
 });
