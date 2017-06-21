@@ -81,18 +81,12 @@ async function showCurrency(message){
       }
     ]
   };
-  //Need refactoring!!
-  if(command === "list" || command === ""){
-    let currencies = ["BTC", "ETH", "ETC", "XRP", "DASH"].filter(c => {
-      return (c !== exchange);
-    });
-    apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencies.join(",")}&tsyms=${exchange}`;
-  } else {
-    let queryCurrencyList = command.toUpperCase().split(",").filter(c => {
-      return (c !== exchange);
-    });
-    apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${queryCurrencyList.join(",")}&tsyms=${exchange}`;
-  }
+  let currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
+  let currencyQuery = currencies.filter(c => {
+    return (c !== exchange);
+  });
+  apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
+  console.log(apiURL);
   const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
