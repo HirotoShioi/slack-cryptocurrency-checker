@@ -1,5 +1,4 @@
 const botkit = require('botkit');
-const request = require('request');
 
 // Format currency price
 const formatPrice = (value, exchange) => {
@@ -8,7 +7,7 @@ const formatPrice = (value, exchange) => {
 };
 
 // Fetch data from external api
-const fetchData = (url) => {
+const fetchData = url => {
   const result = new Promise((resolve, reject) =>{
     require('request')(url, (error, response, body) => {
       if(!error){
@@ -43,13 +42,13 @@ const createAttachmentObject = (currency, coinList, exchange) => {
   const falling = "#cc0000";
   const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency[exchange];
   const { ImageUrl, CoinName } = coinList.Data[FROMSYMBOL];
-  const change = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
-  const changeColor = (change < 0) ? falling : rising;
+  const changeRate = Math.floor(CHANGE24HOUR / PRICE * 10000) / 100;
+  const changeColor = (changeRate < 0) ? falling : rising;
   const attachmentObj = {
     "author_name":CoinName,
     "author_icon":`https://www.cryptocompare.com/${ImageUrl}`,
     "fallback": `Current rate for the ${FROMSYMBOL} is ${formatPrice(PRICE, exchange)} - https://www.cryptocompare.com/`,
-    "title": `${formatPrice(PRICE, exchange)} (${change}%)`,
+    "title": `${formatPrice(PRICE, exchange)} (${changeRate}%)`,
     "title_link": `https://www.cryptocompare.com/coins/${FROMSYMBOL.toLowerCase()}/overview/USD`,
     "thumb_url":`https://www.cryptocompare.com/${ImageUrl}`,
     "color": changeColor,
@@ -75,7 +74,6 @@ async function searchCurrency(message){
     return createErrorMessage();
   }
   const [ command, exchanges ] = message.text.trim().split(" ");
-  let apiURL = "";
   let exchange = (exchanges) ? exchanges.toUpperCase() : "USD";
   const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
   const successReplyObject = {
@@ -87,11 +85,11 @@ async function searchCurrency(message){
     ]
   };
   let currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
+  // Need to filter out coins that does not exist in coinList!!!
   let currencyQuery = currencies.filter(c => {
     return (c !== exchange);
   });
-  apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
-  console.log(apiURL);
+  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
   const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
