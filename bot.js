@@ -1,11 +1,13 @@
 const botkit = require('botkit');
 const request = require('request');
 
+// Format currency price
 const formatPrice = (value, exchange) => {
   const formatNumber = require('numeral')(value).format('0,0.00[00000]');
   return (exchange === "USD") ? `$${formatNumber}` : `${formatNumber}${exchange}`;
 };
 
+// Fetch data from external api
 const fetchData = (url) => {
   const result = new Promise((resolve, reject) =>{
     require('request')(url, (error, response, body) => {
@@ -19,7 +21,8 @@ const fetchData = (url) => {
   return result;
 };
 
-const sendErrorMessage = ( message = "Invalid command. Please try again" ) => {
+// Create error message attachment
+const createErrorMessage = ( message = "Invalid command. Please try again" ) => {
   const errorReplyObject = {
     "attachments": [
       {
@@ -34,6 +37,7 @@ const sendErrorMessage = ( message = "Invalid command. Please try again" ) => {
   return errorReplyObject;
 };
 
+// Create success message attachment
 const createAttachmentObject = (currency, coinList, exchange) => {
   const rising = "#2ab27b";
   const falling = "#cc0000";
@@ -65,9 +69,10 @@ const createAttachmentObject = (currency, coinList, exchange) => {
   return attachmentObj;
 };
 
-async function showCurrency(message){
+// Search currency depending on the user's message
+async function searchCurrency(message){
   if(message.text.trim().split(" ").length >= 3) {
-    return sendErrorMessage();
+    return createErrorMessage();
   }
   const [ command, exchanges ] = message.text.trim().split(" ");
   let apiURL = "";
@@ -90,12 +95,12 @@ async function showCurrency(message){
   const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
-    return sendErrorMessage();
+    return createErrorMessage();
   } else {
     const currencyAry = Object.values(currencyInformation.RAW);
     currencyAry.forEach(curr => {
       if(!curr) {
-        return sendErrorMessage();
+        return createErrorMessage();
       } else {
        const attachmentObj = createAttachmentObject(curr, coinList, exchange);
        successReplyObject.attachments.push(attachmentObj);       
@@ -105,6 +110,7 @@ async function showCurrency(message){
   }
 };
 
+// Botkit thing
 const controller = botkit.slackbot({
   debug: false,
   json_file_store: './simple_storage/'
@@ -128,7 +134,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/ccc':
-    const reply = showCurrency(message).then(reply => {
+    const reply = searchCurrency(message).then(reply => {
       bot.replyPrivate(message, reply);
     });
     break;
