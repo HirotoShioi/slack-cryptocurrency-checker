@@ -36,6 +36,15 @@ const createErrorMessage = ( message = "Invalid command. Please try again" ) => 
   return errorReplyObject;
 };
 
+//Filter out coins that are not available on coinlist API
+const filterCoins = (currencies, exchange, coinList) => {
+  const filteredCurrency = currencies.filter(c => {
+    const availableCoinList = Object.values(coinList.Data).map(data => { return data.Name});
+    return (c !== exchange || availableCoinList.includes(c));
+  });
+  return filteredCurrency;
+}
+
 // Create success message attachment
 const createAttachmentObject = (currency, coinList, exchange) => {
   const rising = "#2ab27b";
@@ -84,14 +93,11 @@ async function searchCurrency(message){
       }
     ]
   };
-  let currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
-  // Need to filter out coins that does not exist in coinList!!!
-  let currencyQuery = currencies.filter(c => {
-    return (c !== exchange);
-  });
+  const currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
+  const coinList = await fetchData(coinListURL);
+  currencyQuery = filterCoins(currencies, exchange, coinList);
   const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
   const currencyInformation = await fetchData(apiURL);
-  const coinList = await fetchData(coinListURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
     return createErrorMessage();
   } else {
