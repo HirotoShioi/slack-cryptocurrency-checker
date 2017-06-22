@@ -82,8 +82,9 @@ async function searchCurrency(message){
   if(message.text.trim().split(" ").length >= 3) {
     return createErrorMessage();
   }
-  const [ command, exchanges ] = message.text.trim().split(" ");
-  let exchange = (exchanges) ? exchanges.toUpperCase() : "USD";
+  const [ command, selectedExchanges ] = message.text.trim().split(" ");
+  const exchange = (selectedExchanges) ? selectedExchanges.toUpperCase() : "USD";
+  const currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
   const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
   const replyObject = {
     "attachments":[
@@ -93,11 +94,10 @@ async function searchCurrency(message){
       }
     ]
   };
-  const currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
   const coinList = await fetchData(coinListURL);
   currencyQuery = filterCoins(currencies, exchange, coinList);
-  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
-  const currencyInformation = await fetchData(apiURL);
+  const dataURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
+  const currencyInformation = await fetchData(dataURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
     return createErrorMessage();
   } else {
