@@ -1,4 +1,5 @@
 # slack-cryptocurrency-checker
+<img src="./readme.png" width="50%">
 
 ## Description
 This is slack integration application for checking cryptocurrency price changes
@@ -19,4 +20,4 @@ Currently this is still in development so I've not yet distributed the applicati
 - Credentials needed in order to use Slack app(ClientID, Client secret, TZ);
 
 ## Future development
-Customize list so that each user can have their own list of currencies they want to show when they type `/ccc list`. For example if user types `/ccc add DOGE`, it will display dogecoin when they type `/ccc list`.
+Customizable list so that each user can have their own list of currencies they want to show when they type `/ccc list`. For example if user types `/ccc add DOGE`, it will display dogecoin when they type `/ccc list`.
