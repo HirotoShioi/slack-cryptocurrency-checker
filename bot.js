@@ -36,8 +36,17 @@ const createErrorMessage = ( message = "Invalid command. Please try again" ) => 
   return errorReplyObject;
 };
 
+// Filter out coins that are not available on coinlist API
+const filterCoins = (currencies = [], exchange = "USD", coinList = {}) => {
+  const filteredCurrency = currencies.filter(c => {
+    const availableCoinList = Object.values(coinList.Data).map(data => { return data.Name});
+    return (c !== exchange || availableCoinList.includes(c));
+  });
+  return filteredCurrency;
+}
+
 // Create success message attachment
-const createAttachmentObject = (currency, coinList, exchange) => {
+const createAttachmentObject = (currency, exchange = "USD", coinList = {}) => {
   const rising = "#2ab27b";
   const falling = "#cc0000";
   const { HIGH24HOUR, LOW24HOUR, PRICE, CHANGE24HOUR, FROMSYMBOL } = currency[exchange];
@@ -73,10 +82,11 @@ async function searchCurrency(message){
   if(message.text.trim().split(" ").length >= 3) {
     return createErrorMessage();
   }
-  const [ command, exchanges ] = message.text.trim().split(" ");
-  let exchange = (exchanges) ? exchanges.toUpperCase() : "USD";
+  const [ command, selectedExchanges ] = message.text.trim().split(" ");
+  const exchange = (selectedExchanges) ? selectedExchanges.toUpperCase() : "USD";
+  const currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
   const coinListURL = "https://www.cryptocompare.com/api/data/coinlist/";
-  const successReplyObject = {
+  const replyObject = {
     "attachments":[
       {
         "title":"Cryptocurrency Checker",
@@ -84,14 +94,10 @@ async function searchCurrency(message){
       }
     ]
   };
-  let currencies = (command === "list" || command === "") ? ["BTC", "ETH", "ETC", "XRP", "DASH"] : command.toUpperCase().split(",");
-  // Need to filter out coins that does not exist in coinList!!!
-  let currencyQuery = currencies.filter(c => {
-    return (c !== exchange);
-  });
-  const apiURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
-  const currencyInformation = await fetchData(apiURL);
   const coinList = await fetchData(coinListURL);
+  currencyQuery = filterCoins(currencies, exchange, coinList);
+  const dataURL = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${currencyQuery.join(",")}&tsyms=${exchange}`;
+  const currencyInformation = await fetchData(dataURL);
   if(!currencyInformation.RAW || coinList.Response !== "Success"){
     return createErrorMessage();
   } else {
@@ -100,11 +106,11 @@ async function searchCurrency(message){
       if(!curr) {
         return createErrorMessage();
       } else {
-       const attachmentObj = createAttachmentObject(curr, coinList, exchange);
-       successReplyObject.attachments.push(attachmentObj);       
+       const attachmentObj = createAttachmentObject(curr, exchange, coinList);
+       replyObject.attachments.push(attachmentObj);
       }
     });
-    return successReplyObject;
+    return replyObject;
   }
 };
 
