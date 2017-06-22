@@ -138,7 +138,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 controller.on('slash_command', function(bot, message) {
   switch (message.command) {
   case '/ccc':
-    const reply = searchCurrency(message).then(reply => {
+    searchCurrency(message).then(reply => {
       bot.replyPrivate(message, reply);
     });
     break;
