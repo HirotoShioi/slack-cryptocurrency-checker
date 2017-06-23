@@ -6,7 +6,9 @@ const userSchema = mongoose.Schema({
   user: String,
   list: Array
 });
-userSchema.methods.addToList = (cb) => {
-  this.model('user').find({userId: })
+
+userSchema.methods.addToList = function addToList(params, cb) {
+  return this.model('users').update({userId: params.userId}, {$push: {list: params.currency}});
 }
-exports.User = mongoose.model('user', userSchema);
+
+exports.User = mongoose.model('users', userSchema);
