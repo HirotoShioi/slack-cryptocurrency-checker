@@ -1,6 +1,6 @@
 const botkit = require('botkit');
 const mongoose = require('mongoose').connect(process.env.MONGODB_URI);
-
+const User = require('./schema').User;
 // Format currency price
 const formatPrice = (value, exchange) => {
   const formatNumber = require('numeral')(value).format('0,0.00[00000]');
