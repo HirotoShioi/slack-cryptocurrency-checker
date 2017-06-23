@@ -10,10 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "botkit": "^0.5.4",
+    "botkit-storage-mongo": "^1.0.6",
     "numeral": "^2.0.6",
     "request": "^2.81.0"
   },
-  "engines":{
+  "engines": {
     "node": "8.1"
   }
 }

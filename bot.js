@@ -1,5 +1,5 @@
 const botkit = require('botkit');
-
+const mongoStorage = require('botkit-storage-mongo')({mongoUri:process.env.MONGODB_URI});
 // Format currency price
 const formatPrice = (value, exchange) => {
   const formatNumber = require('numeral')(value).format('0,0.00[00000]');
@@ -117,7 +117,7 @@ async function searchCurrency(message){
 // Botkit thing
 const controller = botkit.slackbot({
   debug: false,
-  json_file_store: './simple_storage/'
+  storage: mongoStorage
 }).configureSlackApp({
   clientId: process.env.BOTKIT_SLACK_CLIENT_ID,
   clientSecret: process.env.BOTKIT_SLACK_CLIENT_SECRET,
@@ -136,6 +136,9 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 });
 
 controller.on('slash_command', function(bot, message) {
+  controller.storage.users.get(message.user, function(err, user_data) {
+    console.log(user_data);
+  });
   switch (message.command) {
   case '/ccc':
     searchCurrency(message).then(reply => {
