@@ -1,4 +1,5 @@
 const botkit = require('botkit');
+const mongoose = require('mongoose').connect(process.env.MONGODB_URI);
 
 // Format currency price
 const formatPrice = (value, exchange) => {
@@ -117,7 +118,6 @@ async function searchCurrency(message){
 // Botkit thing
 const controller = botkit.slackbot({
   debug: false,
-  json_file_store: './simple_storage/'
 }).configureSlackApp({
   clientId: process.env.BOTKIT_SLACK_CLIENT_ID,
   clientSecret: process.env.BOTKIT_SLACK_CLIENT_SECRET,
