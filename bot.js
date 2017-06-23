@@ -118,7 +118,6 @@ async function searchCurrency(message){
 // Botkit thing
 const controller = botkit.slackbot({
   debug: false,
-  storage: mongoose
 }).configureSlackApp({
   clientId: process.env.BOTKIT_SLACK_CLIENT_ID,
   clientSecret: process.env.BOTKIT_SLACK_CLIENT_SECRET,
