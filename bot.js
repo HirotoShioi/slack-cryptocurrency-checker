@@ -7,6 +7,7 @@ const formatPrice = (value, exchange) => {
   const formatNumber = require('numeral')(value).format('0,0.00[00000]');
   return (exchange === "USD") ? `$${formatNumber}` : `${formatNumber}${exchange}`;
 };
+
 // Fetch data from external api
 const fetchData = url => {
   const result = new Promise((resolve, reject) =>{
@@ -136,6 +137,7 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 });
 
 controller.on('slash_command', function(bot, message) {
+  console.log(message);
   switch (message.command) {
   case '/ccc':
     searchCurrency(message).then(reply => {
