@@ -137,9 +137,17 @@ controller.setupWebserver(process.env.PORT, function(err, webserver) {
 });
 
 controller.on('slash_command', function(bot, message) {
-  console.log(message);
+  const { user_id, team_id, user_name } = message;
   switch (message.command) {
   case '/ccc':
+    const user = new User({
+      userId:user_id,
+      teamId:team_id,
+      user:user_name,
+    });
+    user.addToList(user,"BTC",function(cb){
+      console.log("success");
+    });
     searchCurrency(message).then(reply => {
       bot.replyPrivate(message, reply);
     });

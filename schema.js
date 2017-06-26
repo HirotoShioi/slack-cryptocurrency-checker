@@ -19,7 +19,9 @@ userSchema.methods.addToList = function addToList(user, currencyName, cb) {
   fetchData(coinListURL).then(coinList =>{
     const availableCoinList = Object.values(coinList.Data).map(data => { return data.Name });
     if(availableCoinList.includes(currencyName)){
-      return this.model('users').update({userId: user.id}, {$push: {currencyList: currencyName}},{upsert:true});
+      return this.model('users')
+      .update({userId: user.userId},
+              {userId:user.userId, teamId:user.teamId, user:user.user, $push: {currencyList: currencyName}},{upsert:true},cb);
     } else {
       console.log(cb);
     }
